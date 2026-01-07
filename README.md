@@ -64,14 +64,38 @@ npm run web      # Run on web browser
 
 ## Project Structure
 
+The project follows a scalable, feature-organized structure designed for maintainability and performance:
+
 ```
 BitacoraFx/
 ├── src/
+│   ├── api/                # API layer - Firebase abstractions
+│   │   ├── accounts.api.ts
+│   │   ├── entries.api.ts
+│   │   └── index.ts
 │   ├── components/         # Reusable UI components
 │   │   ├── AccountCard.tsx
 │   │   ├── BalanceChart.tsx
 │   │   ├── Button.tsx
 │   │   └── EntryCard.tsx
+│   ├── config/            # Configuration (Firebase, etc.)
+│   │   ├── firebase.config.ts
+│   │   └── index.ts
+│   ├── constants/         # App-wide constants
+│   │   ├── colors.ts
+│   │   ├── app.constants.ts
+│   │   └── index.ts
+│   ├── hooks/             # Custom React hooks
+│   │   ├── useAccounts.ts
+│   │   ├── useEntries.ts
+│   │   └── index.ts
+│   ├── models/            # Data models and types
+│   │   ├── entities/
+│   │   │   ├── TradingAccount.ts
+│   │   │   ├── DailyEntry.ts
+│   │   │   ├── Navigation.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
 │   ├── navigation/        # Navigation configuration
 │   │   ├── RootNavigator.tsx
 │   │   └── TabNavigator.tsx
@@ -79,10 +103,7 @@ BitacoraFx/
 │   │   ├── AccountsScreen.tsx
 │   │   ├── AnalyticsScreen.tsx
 │   │   └── DashboardScreen.tsx
-│   ├── services/          # External services
-│   │   ├── firebase.ts
-│   │   └── firestore.ts
-│   ├── types/             # TypeScript type definitions
+│   ├── theme/             # Theme configuration
 │   │   └── index.ts
 │   └── utils/             # Utility functions
 │       └── helpers.ts
@@ -90,6 +111,17 @@ BitacoraFx/
 ├── App.tsx               # App entry point
 └── package.json          # Dependencies
 ```
+
+**📖 For detailed documentation, see [STRUCTURE.md](./STRUCTURE.md)**
+
+### Key Benefits
+
+- **🚀 Performance**: Optimized imports and code organization
+- **📦 Scalability**: Easy to add new features and modules
+- **🔧 Maintainability**: Clear separation of concerns
+- **♻️ Reusability**: Custom hooks and API layer reduce duplication
+- **🛡️ Type Safety**: Comprehensive TypeScript types
+- **🎨 Theming**: Centralized theme and constants
 
 ## Usage
 
