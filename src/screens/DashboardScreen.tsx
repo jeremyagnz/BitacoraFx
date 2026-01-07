@@ -29,6 +29,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 }) => {
   const { account } = route.params;
   const [entries, setEntries] = useState<DailyEntry[]>([]);
+  const [currentBalance, setCurrentBalance] = useState(account.initialBalance);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -49,13 +50,19 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       setLoading(true);
       const fetchedEntries = await getEntriesByAccount(account.id);
       setEntries(fetchedEntries);
+      // Update current balance from the most recent entry
+      if (fetchedEntries.length > 0) {
+        setCurrentBalance(fetchedEntries[0].balance);
+      } else {
+        setCurrentBalance(account.initialBalance);
+      }
     } catch (error) {
       console.error('Error loading entries:', error);
       Alert.alert('Error', 'Failed to load entries');
     } finally {
       setLoading(false);
     }
-  }, [account.id]);
+  }, [account.id, account.initialBalance]);
 
   useEffect(() => {
     loadEntries();
@@ -89,9 +96,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
     try {
       setSaving(true);
       
-      const currentBalance = entries.length > 0 
-        ? entries[0].balance 
-        : account.initialBalance;
       const newBalance = currentBalance + profitLoss;
 
       await createEntry({
@@ -222,10 +226,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Current Balance</Text>
           <Text style={styles.balance}>
-            {formatCurrency(
-              entries.length > 0 ? entries[0].balance : account.initialBalance,
-              account.currency
-            )}
+            {formatCurrency(currentBalance, account.currency)}
           </Text>
           
           <View style={styles.plContainer}>
@@ -324,10 +325,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               style={styles.input}
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={newEntry.profitLoss}
-              onChangeText={(text) =>
-                setNewEntry({ ...newEntry, profitLoss: text })
-              }
-              keyboardType="numeric"
+              onChangeText={(text) => {
+                // Allow negative numbers and decimals
+                const cleaned = text.replace(/[^0-9.-]/g, '');
+                setNewEntry({ ...newEntry, profitLoss: cleaned });
+              }}
+              keyboardType="default"
             />
 
             <TextInput
@@ -381,10 +384,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               style={styles.input}
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={editEntry.profitLoss}
-              onChangeText={(text) =>
-                setEditEntry({ ...editEntry, profitLoss: text })
-              }
-              keyboardType="numeric"
+              onChangeText={(text) => {
+                // Allow negative numbers and decimals
+                const cleaned = text.replace(/[^0-9.-]/g, '');
+                setEditEntry({ ...editEntry, profitLoss: cleaned });
+              }}
+              keyboardType="default"
             />
 
             <TextInput
