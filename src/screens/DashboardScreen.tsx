@@ -17,7 +17,7 @@ import EntryCard from '../components/EntryCard';
 import Button from '../components/Button';
 import BalanceChart from '../components/BalanceChart';
 import { DailyEntry, RootStackParamList } from '../types';
-import { getEntriesByAccount, createEntry } from '../services/firestore';
+import { getEntriesByAccount, createEntry, updateEntry, deleteEntry } from '../api';
 import { formatCurrency } from '../utils/helpers';
 
 type DashboardScreenProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
@@ -30,11 +30,18 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<DailyEntry | null>(null);
   const [newEntry, setNewEntry] = useState({
     profitLoss: '',
     notes: '',
   });
+  const [editEntry, setEditEntry] = useState({
+    profitLoss: '',
+    notes: '',
+  });
   const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadEntries = useCallback(async () => {
     try {
@@ -52,6 +59,19 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
+
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message);
+  };
 
   const handleCreateEntry = async () => {
     if (!newEntry.profitLoss) {
@@ -84,12 +104,87 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
       setModalVisible(false);
       setNewEntry({ profitLoss: '', notes: '' });
       await loadEntries();
+      showSuccessMessage('Entry added successfully!');
     } catch (error) {
       console.error('Error creating entry:', error);
       Alert.alert('Error', 'Failed to create entry');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEditEntry = (entry: DailyEntry) => {
+    setSelectedEntry(entry);
+    setEditEntry({
+      profitLoss: entry.profitLoss.toString(),
+      notes: entry.notes || '',
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleUpdateEntry = async () => {
+    if (!selectedEntry) return;
+
+    if (!editEntry.profitLoss) {
+      Alert.alert('Error', 'Please enter profit/loss amount');
+      return;
+    }
+
+    const profitLoss = parseFloat(editEntry.profitLoss);
+    if (isNaN(profitLoss)) {
+      Alert.alert('Error', 'Please enter a valid number');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      
+      // Calculate new balance based on the difference
+      const plDifference = profitLoss - selectedEntry.profitLoss;
+      const newBalance = selectedEntry.balance + plDifference;
+
+      await updateEntry(selectedEntry.id, {
+        accountId: account.id,
+        profitLoss,
+        balance: newBalance,
+        notes: editEntry.notes || undefined,
+      });
+
+      setEditModalVisible(false);
+      setSelectedEntry(null);
+      setEditEntry({ profitLoss: '', notes: '' });
+      await loadEntries();
+      showSuccessMessage('Entry updated successfully!');
+    } catch (error) {
+      console.error('Error updating entry:', error);
+      Alert.alert('Error', 'Failed to update entry');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteEntry = (entry: DailyEntry) => {
+    Alert.alert(
+      'Delete Entry',
+      'Are you sure you want to delete this entry?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteEntry(entry.id, account.id);
+              await loadEntries();
+              showSuccessMessage('Entry deleted successfully!');
+            } catch (error) {
+              console.error('Error deleting entry:', error);
+              Alert.alert('Error', 'Failed to delete entry');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderHeader = () => {
@@ -152,11 +247,23 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
+      {successMessage && (
+        <View style={styles.successBanner}>
+          <MaterialIcons name="check-circle" size={20} color="#FFFFFF" />
+          <Text style={styles.successText}>{successMessage}</Text>
+        </View>
+      )}
+      
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <EntryCard entry={item} currency={account.currency} />
+          <EntryCard 
+            entry={item} 
+            currency={account.currency}
+            onPress={() => handleEditEntry(item)}
+            onLongPress={() => handleDeleteEntry(item)}
+          />
         )}
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.listContent}
@@ -227,6 +334,63 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </View>
         </View>
       </Modal>
+
+      {/* Edit Entry Modal */}
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Entry</Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+                <MaterialIcons name="close" size={24} color="#8E8E93" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.modalDate}>
+              {selectedEntry && new Date(selectedEntry.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Profit/Loss (e.g., 100 or -50)"
+              value={editEntry.profitLoss}
+              onChangeText={(text) =>
+                setEditEntry({ ...editEntry, profitLoss: text })
+              }
+              keyboardType="numeric"
+            />
+
+            <TextInput
+              style={[styles.input, styles.notesInput]}
+              placeholder="Notes (optional)"
+              value={editEntry.notes}
+              onChangeText={(text) =>
+                setEditEntry({ ...editEntry, notes: text })
+              }
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+
+            <Button
+              title="Update Entry"
+              onPress={handleUpdateEntry}
+              loading={saving}
+              style={styles.createButton}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -235,6 +399,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F2F2F7',
+  },
+  successBanner: {
+    backgroundColor: '#34C759',
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  successText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,
