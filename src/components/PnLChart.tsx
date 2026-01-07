@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea } from 'victory-native';
+import { LineChart } from 'react-native-chart-kit';
 import { DailyEntry } from '../types';
 import { formatCurrency } from '../utils/helpers';
 
@@ -14,23 +14,33 @@ const PnLChart: React.FC<PnLChartProps> = ({ entries, currency = 'USD', darkMode
   const screenWidth = Dimensions.get('window').width;
 
   const chartData = useMemo(() => {
-    if (entries.length === 0) return [];
+    if (entries.length === 0) return { labels: [], data: [], totalPnL: 0 };
 
     // Sort entries by date (oldest first)
     const sortedEntries = [...entries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
+    // Take last 10 entries for better visualization
+    const recentEntries = sortedEntries.slice(-10);
+
     // Calculate cumulative P/L
     let cumulativePnL = 0;
-    return sortedEntries.map((entry, index) => {
+    const labels: string[] = [];
+    const data: number[] = [];
+
+    recentEntries.forEach((entry) => {
       cumulativePnL += entry.profitLoss;
-      return {
-        x: index + 1,
-        y: cumulativePnL,
-        date: entry.date,
-      };
+      const date = new Date(entry.date);
+      labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
+      data.push(cumulativePnL);
     });
+
+    return {
+      labels,
+      data,
+      totalPnL: cumulativePnL,
+    };
   }, [entries]);
 
   if (entries.length === 0) {
@@ -43,9 +53,28 @@ const PnLChart: React.FC<PnLChartProps> = ({ entries, currency = 'USD', darkMode
     );
   }
 
-  const maxPnL = Math.max(...chartData.map(d => d.y), 0);
-  const minPnL = Math.min(...chartData.map(d => d.y), 0);
-  const isProfit = chartData.length > 0 && chartData[chartData.length - 1].y >= 0;
+  const isProfit = chartData.totalPnL >= 0;
+
+  const chartConfig = {
+    backgroundColor: darkMode ? '#1C1C1E' : '#ffffff',
+    backgroundGradientFrom: darkMode ? '#1C1C1E' : '#ffffff',
+    backgroundGradientTo: darkMode ? '#1C1C1E' : '#ffffff',
+    decimalPlaces: 0,
+    color: (opacity = 1) => isProfit 
+      ? `rgba(52, 199, 89, ${opacity})` 
+      : `rgba(255, 59, 48, ${opacity})`,
+    labelColor: (opacity = 1) => darkMode 
+      ? `rgba(142, 142, 147, ${opacity})` 
+      : `rgba(0, 0, 0, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: '4',
+      strokeWidth: '2',
+      stroke: isProfit ? '#34C759' : '#FF3B30',
+    },
+  };
 
   return (
     <View style={[styles.container, darkMode && styles.darkContainer]}>
@@ -58,57 +87,27 @@ const PnLChart: React.FC<PnLChartProps> = ({ entries, currency = 'USD', darkMode
           ]}
         >
           {isProfit ? '+' : ''}
-          {formatCurrency(chartData[chartData.length - 1]?.y || 0, currency)}
+          {formatCurrency(chartData.totalPnL, currency)}
         </Text>
       </View>
 
-      <VictoryChart
+      <LineChart
+        data={{
+          labels: chartData.labels,
+          datasets: [{ data: chartData.data }],
+        }}
         width={screenWidth - 32}
         height={220}
-        padding={{ top: 20, bottom: 40, left: 50, right: 20 }}
-        theme={VictoryTheme.material}
-      >
-        <VictoryAxis
-          style={{
-            axis: { stroke: darkMode ? '#333' : '#E5E5EA' },
-            tickLabels: { fill: darkMode ? '#8E8E93' : '#8E8E93', fontSize: 10 },
-            grid: { stroke: 'transparent' },
-          }}
-          tickFormat={() => ''}
-        />
-        <VictoryAxis
-          dependentAxis
-          style={{
-            axis: { stroke: darkMode ? '#333' : '#E5E5EA' },
-            tickLabels: { fill: darkMode ? '#8E8E93' : '#8E8E93', fontSize: 10 },
-            grid: { stroke: darkMode ? '#1C1C1E' : '#F2F2F7', strokeDasharray: '3,3' },
-          }}
-          tickFormat={(value) => `${value >= 0 ? '+' : ''}${(value / 1000).toFixed(0)}k`}
-        />
-        <VictoryArea
-          data={chartData}
-          style={{
-            data: {
-              fill: isProfit
-                ? 'rgba(52, 199, 89, 0.2)'
-                : 'rgba(255, 59, 48, 0.2)',
-              stroke: isProfit ? '#34C759' : '#FF3B30',
-              strokeWidth: 2,
-            },
-          }}
-          interpolation="monotoneX"
-        />
-        <VictoryLine
-          data={chartData}
-          style={{
-            data: {
-              stroke: isProfit ? '#34C759' : '#FF3B30',
-              strokeWidth: 2,
-            },
-          }}
-          interpolation="monotoneX"
-        />
-      </VictoryChart>
+        chartConfig={chartConfig}
+        bezier
+        style={styles.chart}
+        withInnerLines={false}
+        withOuterLines={true}
+        withVerticalLabels={true}
+        withHorizontalLabels={true}
+        yAxisSuffix=""
+        yAxisInterval={1}
+      />
     </View>
   );
 };
@@ -127,6 +126,7 @@ const styles = StyleSheet.create({
   },
   darkContainer: {
     backgroundColor: '#1C1C1E',
+    shadowOpacity: 0.3,
   },
   header: {
     flexDirection: 'row',
@@ -151,6 +151,10 @@ const styles = StyleSheet.create({
   },
   loss: {
     color: '#FF3B30',
+  },
+  chart: {
+    marginVertical: 8,
+    borderRadius: 16,
   },
   emptyContainer: {
     backgroundColor: '#FFFFFF',
