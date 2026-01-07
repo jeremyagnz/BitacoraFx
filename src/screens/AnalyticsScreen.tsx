@@ -10,6 +10,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { getAccounts, getEntriesByAccount } from '../services/firestore';
 import { TradingAccount, DailyEntry } from '../types';
+import PnLChart from '../components/PnLChart';
+import Statistics from '../components/Statistics';
 import {
   formatCurrency,
   calculateTotalProfitLoss,
@@ -87,6 +89,13 @@ const AnalyticsScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.title}>Analytics</Text>
+
+        {allEntries.length > 0 && (
+          <>
+            <PnLChart entries={allEntries} />
+            <Statistics entries={allEntries} />
+          </>
+        )}
 
         <View style={styles.card}>
           <View style={styles.cardHeader}>

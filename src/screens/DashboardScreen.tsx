@@ -16,6 +16,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import EntryCard from '../components/EntryCard';
 import Button from '../components/Button';
 import BalanceChart from '../components/BalanceChart';
+import PnLChart from '../components/PnLChart';
+import Statistics from '../components/Statistics';
 import { DailyEntry, RootStackParamList } from '../types';
 import { getEntriesByAccount, createEntry, updateEntry, deleteEntry } from '../api';
 import { updateAccount } from '../api';
@@ -239,7 +241,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         </View>
 
         {entries.length > 0 && (
-          <BalanceChart entries={entries} currency={account.currency} />
+          <>
+            <PnLChart entries={entries} currency={account.currency} />
+            <Statistics entries={entries} currency={account.currency} />
+            <BalanceChart entries={entries} currency={account.currency} />
+          </>
         )}
 
         <View style={styles.sectionHeader}>
