@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { TradingAccount } from '../types';
 import { formatCurrency } from '../utils/helpers';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 interface AccountCardProps {
   account: TradingAccount;
@@ -73,13 +74,13 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -92,18 +93,18 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   broker: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginTop: 2,
   },
   currency: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8E8E93',
-    backgroundColor: '#F2F2F7',
+    color: DARK_THEME_COLORS.textSecondary,
+    backgroundColor: DARK_THEME_COLORS.backgroundTertiary,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -113,30 +114,30 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginBottom: 4,
   },
   balance: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F2F2F7',
+    borderTopColor: DARK_THEME_COLORS.border,
   },
   label: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginBottom: 4,
   },
   value: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   profitLossContainer: {
     alignItems: 'flex-end',
@@ -151,10 +152,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   profit: {
-    color: '#34C759',
+    color: DARK_THEME_COLORS.profit,
   },
   loss: {
-    color: '#FF3B30',
+    color: DARK_THEME_COLORS.loss,
   },
 });
 

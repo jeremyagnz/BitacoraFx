@@ -2,19 +2,21 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { DailyEntry } from '../types';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 interface BalanceChartProps {
   entries: DailyEntry[];
   currency: string;
+  darkMode?: boolean;
 }
 
-const BalanceChart: React.FC<BalanceChartProps> = ({ entries, currency }) => {
+const BalanceChart: React.FC<BalanceChartProps> = ({ entries, currency, darkMode = false }) => {
   const screenWidth = Dimensions.get('window').width;
 
   if (entries.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No data to display</Text>
+      <View style={[styles.emptyContainer, darkMode && styles.darkContainer]}>
+        <Text style={[styles.emptyText, darkMode && styles.darkText]}>No data to display</Text>
       </View>
     );
   }
@@ -42,12 +44,14 @@ const BalanceChart: React.FC<BalanceChartProps> = ({ entries, currency }) => {
   };
 
   const chartConfig = {
-    backgroundColor: '#ffffff',
-    backgroundGradientFrom: '#ffffff',
-    backgroundGradientTo: '#ffffff',
+    backgroundColor: darkMode ? DARK_THEME_COLORS.backgroundSecondary : '#ffffff',
+    backgroundGradientFrom: darkMode ? DARK_THEME_COLORS.backgroundSecondary : '#ffffff',
+    backgroundGradientTo: darkMode ? DARK_THEME_COLORS.backgroundSecondary : '#ffffff',
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    labelColor: (opacity = 1) => darkMode 
+      ? `rgba(142, 142, 147, ${opacity})` 
+      : `rgba(0, 0, 0, ${opacity})`,
     style: {
       borderRadius: 16,
     },
@@ -59,8 +63,8 @@ const BalanceChart: React.FC<BalanceChartProps> = ({ entries, currency }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Balance History</Text>
+    <View style={[styles.container, darkMode && styles.darkContainer]}>
+      <Text style={[styles.title, darkMode && styles.darkText]}>Balance History</Text>
       <LineChart
         data={data}
         width={screenWidth - 32}
@@ -91,11 +95,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  darkContainer: {
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
+    shadowOpacity: 0.3,
+  },
   title: {
     fontSize: 18,
     fontWeight: '700',
     color: '#000000',
     marginBottom: 16,
+  },
+  darkText: {
+    color: DARK_THEME_COLORS.text,
   },
   chart: {
     marginVertical: 8,

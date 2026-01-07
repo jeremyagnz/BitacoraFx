@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { DailyEntry } from '../types';
 import { formatCurrency, formatDate } from '../utils/helpers';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 interface EntryCardProps {
   entry: DailyEntry;
@@ -52,13 +53,13 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, currency, onPress, onLongP
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -71,17 +72,17 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   profitLoss: {
     fontSize: 18,
     fontWeight: '700',
   },
   profit: {
-    color: '#34C759',
+    color: DARK_THEME_COLORS.profit,
   },
   loss: {
-    color: '#FF3B30',
+    color: DARK_THEME_COLORS.loss,
   },
   balanceRow: {
     flexDirection: 'row',
@@ -90,27 +91,27 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
   },
   balance: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   notesContainer: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#F2F2F7',
+    borderTopColor: DARK_THEME_COLORS.border,
   },
   notesLabel: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginBottom: 4,
   },
   notes: {
     fontSize: 14,
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
 });
 

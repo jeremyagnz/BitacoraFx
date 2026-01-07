@@ -17,6 +17,7 @@ import {
   calculateTotalProfitLoss,
   calculateWinRate,
 } from '../utils/helpers';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 const AnalyticsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -92,8 +93,8 @@ const AnalyticsScreen: React.FC = () => {
 
         {allEntries.length > 0 && (
           <>
-            <PnLChart entries={allEntries} />
-            <Statistics entries={allEntries} />
+            <PnLChart entries={allEntries} darkMode={true} />
+            <Statistics entries={allEntries} darkMode={true} />
           </>
         )}
 
@@ -223,13 +224,13 @@ const AnalyticsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.background,
   },
   scrollContent: {
     padding: 16,
@@ -237,17 +238,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
     marginBottom: 20,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -257,12 +258,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    borderBottomColor: DARK_THEME_COLORS.border,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
     marginLeft: 8,
   },
   statRow: {
@@ -273,25 +274,25 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
   },
   statValue: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   profit: {
-    color: '#34C759',
+    color: DARK_THEME_COLORS.profit,
   },
   loss: {
-    color: '#FF3B30',
+    color: DARK_THEME_COLORS.loss,
   },
   accountRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    borderBottomColor: DARK_THEME_COLORS.border,
   },
   accountInfo: {
     flex: 1,
@@ -299,12 +300,12 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
     marginBottom: 4,
   },
   accountBalance: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
   },
   accountPL: {
     alignItems: 'flex-end',
@@ -325,12 +326,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     textAlign: 'center',
     marginTop: 8,
     paddingHorizontal: 32,
