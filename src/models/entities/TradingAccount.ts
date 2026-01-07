@@ -1,6 +1,7 @@
 export interface TradingAccount {
   id: string;
   name: string;
+  broker: string;
   initialBalance: number;
   currentBalance: number;
   currency: string;

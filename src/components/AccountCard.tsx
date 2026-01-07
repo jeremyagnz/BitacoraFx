@@ -22,7 +22,12 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.header}>
-        <Text style={styles.accountName}>{account.name}</Text>
+        <View>
+          <Text style={styles.accountName}>{account.name}</Text>
+          {account.broker && (
+            <Text style={styles.broker}>{account.broker}</Text>
+          )}
+        </View>
         <Text style={styles.currency}>{account.currency}</Text>
       </View>
       
@@ -88,6 +93,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#000000',
+  },
+  broker: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 2,
   },
   currency: {
     fontSize: 14,

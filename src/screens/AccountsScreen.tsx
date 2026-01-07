@@ -31,6 +31,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [newAccount, setNewAccount] = useState({
     name: '',
+    broker: '',
     initialBalance: '',
     currency: 'USD',
   });
@@ -54,7 +55,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
   }, [loadAccounts]);
 
   const handleCreateAccount = async () => {
-    if (!newAccount.name || !newAccount.initialBalance) {
+    if (!newAccount.name || !newAccount.broker || !newAccount.initialBalance) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -69,11 +70,12 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
       setSaving(true);
       await createAccount({
         name: newAccount.name,
+        broker: newAccount.broker,
         initialBalance: balance,
         currency: newAccount.currency,
       });
       setModalVisible(false);
-      setNewAccount({ name: '', initialBalance: '', currency: 'USD' });
+      setNewAccount({ name: '', broker: '', initialBalance: '', currency: 'USD' });
       await loadAccounts();
     } catch (error) {
       console.error('Error creating account:', error);
@@ -174,6 +176,15 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
               value={newAccount.name}
               onChangeText={(text) =>
                 setNewAccount({ ...newAccount, name: text })
+              }
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Broker"
+              value={newAccount.broker}
+              onChangeText={(text) =>
+                setNewAccount({ ...newAccount, broker: text })
               }
             />
 
