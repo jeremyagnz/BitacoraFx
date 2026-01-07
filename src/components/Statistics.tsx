@@ -64,10 +64,13 @@ const Statistics: React.FC<StatisticsProps> = ({ entries, currency = 'USD', dark
   const containerStyle = [styles.container, darkMode && styles.darkContainer];
   const textStyle = [styles.text, darkMode && styles.darkText];
   const valueStyle = [styles.value, darkMode && styles.darkText];
+  const statCardStyle = [styles.statCard, darkMode && styles.darkStatCard];
+  const headerStyle = [styles.header, darkMode && styles.darkHeader];
+  const separatorStyle = [styles.separator, darkMode && styles.darkSeparator];
 
   return (
     <View style={containerStyle}>
-      <View style={styles.header}>
+      <View style={headerStyle}>
         <MaterialIcons 
           name="analytics" 
           size={24} 
@@ -78,7 +81,7 @@ const Statistics: React.FC<StatisticsProps> = ({ entries, currency = 'USD', dark
 
       <View style={styles.statsGrid}>
         {/* Total Profit */}
-        <View style={styles.statCard}>
+        <View style={statCardStyle}>
           <View style={styles.statRow}>
             <MaterialIcons name="trending-up" size={20} color="#34C759" />
             <Text style={textStyle}>Total Profit</Text>
@@ -89,7 +92,7 @@ const Statistics: React.FC<StatisticsProps> = ({ entries, currency = 'USD', dark
         </View>
 
         {/* Total Loss */}
-        <View style={styles.statCard}>
+        <View style={statCardStyle}>
           <View style={styles.statRow}>
             <MaterialIcons name="trending-down" size={20} color="#FF3B30" />
             <Text style={textStyle}>Total Loss</Text>
@@ -100,14 +103,14 @@ const Statistics: React.FC<StatisticsProps> = ({ entries, currency = 'USD', dark
         </View>
 
         {/* Win Days vs Loss Days */}
-        <View style={[styles.statCard, styles.wideCard]}>
+        <View style={[statCardStyle, styles.wideCard]}>
           <Text style={textStyle}>Win/Loss Days</Text>
           <View style={styles.daysRow}>
             <View style={styles.daysItem}>
               <Text style={[valueStyle, styles.profit]}>{stats.winDays}</Text>
               <Text style={[textStyle, { fontSize: 12 }]}>Win Days</Text>
             </View>
-            <View style={styles.separator} />
+            <View style={separatorStyle} />
             <View style={styles.daysItem}>
               <Text style={[valueStyle, styles.loss]}>{stats.lossDays}</Text>
               <Text style={[textStyle, { fontSize: 12 }]}>Loss Days</Text>
@@ -116,7 +119,7 @@ const Statistics: React.FC<StatisticsProps> = ({ entries, currency = 'USD', dark
         </View>
 
         {/* Average Daily P/L */}
-        <View style={styles.statCard}>
+        <View style={statCardStyle}>
           <View style={styles.statRow}>
             <MaterialIcons 
               name="show-chart" 
@@ -137,7 +140,7 @@ const Statistics: React.FC<StatisticsProps> = ({ entries, currency = 'USD', dark
         </View>
 
         {/* Win Rate */}
-        <View style={styles.statCard}>
+        <View style={statCardStyle}>
           <View style={styles.statRow}>
             <MaterialIcons 
               name="percent" 
@@ -178,6 +181,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F2F2F7',
   },
+  darkHeader: {
+    borderBottomColor: '#2C2C2E',
+  },
   title: {
     fontSize: 18,
     fontWeight: '700',
@@ -216,6 +222,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
   },
+  darkStatCard: {
+    backgroundColor: '#2C2C2E',
+  },
   wideCard: {
     minWidth: '100%',
   },
@@ -237,6 +246,9 @@ const styles = StyleSheet.create({
     width: 1,
     height: 40,
     backgroundColor: '#C7C7CC',
+  },
+  darkSeparator: {
+    backgroundColor: '#48484A',
   },
 });
 
