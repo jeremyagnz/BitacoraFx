@@ -18,6 +18,7 @@ import Button from '../components/Button';
 import BalanceChart from '../components/BalanceChart';
 import { DailyEntry, RootStackParamList } from '../types';
 import { getEntriesByAccount, createEntry, updateEntry, deleteEntry } from '../api';
+import { updateAccount } from '../api';
 import { formatCurrency } from '../utils/helpers';
 
 type DashboardScreenProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
@@ -139,9 +140,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
     try {
       setSaving(true);
       
-      // Calculate new balance based on the difference
-      const plDifference = profitLoss - selectedEntry.profitLoss;
-      const newBalance = selectedEntry.balance + plDifference;
+      // Find the previous entry balance to calculate the new balance correctly
+      const entryIndex = entries.findIndex(e => e.id === selectedEntry.id);
+      const previousBalance = entryIndex < entries.length - 1 
+        ? entries[entryIndex + 1].balance 
+        : account.initialBalance;
+      const newBalance = previousBalance + profitLoss;
 
       await updateEntry(selectedEntry.id, {
         accountId: account.id,
@@ -175,7 +179,20 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
           onPress: async () => {
             try {
               await deleteEntry(entry.id, account.id);
-              await loadEntries();
+              
+              // Reload entries to get updated list
+              const updatedEntries = await getEntriesByAccount(account.id);
+              setEntries(updatedEntries);
+              
+              // Update account balance to the most recent entry's balance or initial balance
+              const newCurrentBalance = updatedEntries.length > 0 
+                ? updatedEntries[0].balance 
+                : account.initialBalance;
+              
+              await updateAccount(account.id, {
+                currentBalance: newCurrentBalance,
+              });
+              
               showSuccessMessage('Entry deleted successfully!');
             } catch (error) {
               console.error('Error deleting entry:', error);
