@@ -21,7 +21,7 @@ import Statistics from '../components/Statistics';
 import { DailyEntry, RootStackParamList } from '../types';
 import { getEntriesByAccount, createEntry, updateEntry, deleteEntry } from '../api';
 import { updateAccount } from '../api';
-import { formatCurrency } from '../utils/helpers';
+import { formatCurrency, sanitizeNumericInput } from '../utils/helpers';
 
 type DashboardScreenProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -332,9 +332,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={newEntry.profitLoss}
               onChangeText={(text) => {
-                // Allow negative numbers and decimals
-                const cleaned = text.replace(/[^0-9.-]/g, '');
-                setNewEntry({ ...newEntry, profitLoss: cleaned });
+                setNewEntry({ ...newEntry, profitLoss: sanitizeNumericInput(text) });
               }}
               keyboardType="default"
             />
@@ -391,9 +389,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={editEntry.profitLoss}
               onChangeText={(text) => {
-                // Allow negative numbers and decimals
-                const cleaned = text.replace(/[^0-9.-]/g, '');
-                setEditEntry({ ...editEntry, profitLoss: cleaned });
+                setEditEntry({ ...editEntry, profitLoss: sanitizeNumericInput(text) });
               }}
               keyboardType="default"
             />

@@ -21,25 +21,30 @@ const PnLChart: React.FC<PnLChartProps> = ({ entries, currency = 'USD', darkMode
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    // Take last 10 entries for better visualization
+    // Calculate total P/L from all entries first
+    const totalPnL = sortedEntries.reduce((sum, entry) => sum + entry.profitLoss, 0);
+
+    // Take last 10 entries for visualization
     const recentEntries = sortedEntries.slice(-10);
 
-    // Calculate cumulative P/L
-    let cumulativePnL = 0;
+    // Calculate the starting cumulative P/L (P/L before the 10 shown entries)
+    const entriesBeforeRecent = sortedEntries.slice(0, -10);
+    let startingPnL = entriesBeforeRecent.reduce((sum, entry) => sum + entry.profitLoss, 0);
+
     const labels: string[] = [];
     const data: number[] = [];
 
     recentEntries.forEach((entry) => {
-      cumulativePnL += entry.profitLoss;
+      startingPnL += entry.profitLoss;
       const date = new Date(entry.date);
       labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
-      data.push(cumulativePnL);
+      data.push(startingPnL);
     });
 
     return {
       labels,
       data,
-      totalPnL: cumulativePnL,
+      totalPnL,
     };
   }, [entries]);
 
