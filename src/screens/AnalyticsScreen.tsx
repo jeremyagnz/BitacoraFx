@@ -172,7 +172,9 @@ const AnalyticsScreen: React.FC = () => {
 
             {accounts.map((account) => {
               const accountPL = account.currentBalance - account.initialBalance;
-              const accountPLPercent = ((accountPL / account.initialBalance) * 100).toFixed(2);
+              const accountPLPercent = account.initialBalance !== 0
+                ? ((accountPL / account.initialBalance) * 100).toFixed(2)
+                : '0.00';
               
               return (
                 <View key={account.id} style={styles.accountRow}>

@@ -16,8 +16,9 @@ interface AccountCardProps {
 
 const AccountCard: React.FC<AccountCardProps> = ({ account, onPress }) => {
   const profitLoss = account.currentBalance - account.initialBalance;
-  const profitLossPercent =
-    ((profitLoss / account.initialBalance) * 100).toFixed(2);
+  const profitLossPercent = account.initialBalance !== 0
+    ? ((profitLoss / account.initialBalance) * 100).toFixed(2)
+    : '0.00';
   const isProfit = profitLoss >= 0;
 
   return (
