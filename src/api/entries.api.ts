@@ -69,6 +69,9 @@ export const updateEntry = async (
 
 /**
  * Delete a daily entry
+ * Note: This function does not automatically update the account balance.
+ * The caller is responsible for recalculating and updating the account balance
+ * based on the remaining entries after deletion.
  */
 export const deleteEntry = async (id: string): Promise<void> => {
   await deleteDoc(doc(db, COLLECTIONS.ENTRIES, id));

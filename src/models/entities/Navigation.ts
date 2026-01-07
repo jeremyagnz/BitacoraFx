@@ -1,3 +1,5 @@
+import { TradingAccount } from './TradingAccount';
+
 export interface ChartDataPoint {
   date: string;
   value: number;
@@ -5,7 +7,7 @@ export interface ChartDataPoint {
 
 export type RootStackParamList = {
   Main: undefined;
-  Dashboard: { account: import('./TradingAccount').TradingAccount };
+  Dashboard: { account: TradingAccount };
 };
 
 export type RootTabParamList = {

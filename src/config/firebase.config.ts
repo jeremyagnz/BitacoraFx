@@ -31,4 +31,3 @@ const db: Firestore = getFirestore(app);
 
 export { app, db };
 export default app;
-

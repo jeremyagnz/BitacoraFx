@@ -34,7 +34,7 @@ type AccountsScreenProps = CompositeScreenProps<
 
 const AccountsScreenOptimized: React.FC<AccountsScreenProps> = ({ navigation }) => {
   // Use the custom hook - much cleaner!
-  const { accounts, loading, addAccount, removeAccount } = useAccounts();
+  const { accounts, loading, addAccount } = useAccounts();
   
   const [modalVisible, setModalVisible] = useState(false);
   const [newAccount, setNewAccount] = useState({
@@ -70,27 +70,6 @@ const AccountsScreenOptimized: React.FC<AccountsScreenProps> = ({ navigation }) 
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleDeleteAccount = (account: TradingAccount) => {
-    Alert.alert(
-      'Delete Account',
-      `Are you sure you want to delete "${account.name}"? This will also delete all associated entries.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await removeAccount(account.id);
-            } catch (error) {
-              // Error already handled by the hook
-            }
-          },
-        },
-      ]
-    );
   };
 
   const handleAccountPress = (account: TradingAccount) => {
