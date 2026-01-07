@@ -51,7 +51,7 @@ export const createAccountLocal = async (
   const accounts = await getStoredAccounts();
   const now = new Date();
   const newAccount: TradingAccount = {
-    id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `local_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
     ...account,
     currentBalance: account.initialBalance,
     createdAt: now,

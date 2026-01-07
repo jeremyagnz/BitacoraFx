@@ -55,7 +55,7 @@ export const createEntryLocal = async (
   const entries = await getStoredEntries(entry.accountId);
   const now = new Date();
   const newEntry: DailyEntry = {
-    id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `local_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
     ...entry,
     createdAt: now,
     updatedAt: now,
