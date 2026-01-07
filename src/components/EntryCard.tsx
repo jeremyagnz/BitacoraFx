@@ -1,18 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { DailyEntry } from '../types';
 import { formatCurrency, formatDate } from '../utils/helpers';
 
 interface EntryCardProps {
   entry: DailyEntry;
   currency: string;
+  onPress?: () => void;
+  onLongPress?: () => void;
 }
 
-const EntryCard: React.FC<EntryCardProps> = ({ entry, currency }) => {
+const EntryCard: React.FC<EntryCardProps> = ({ entry, currency, onPress, onLongPress }) => {
   const isProfit = entry.profitLoss >= 0;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity 
+      style={styles.card} 
+      onPress={onPress}
+      onLongPress={onLongPress}
+      activeOpacity={0.7}
+    >
       <View style={styles.header}>
         <Text style={styles.date}>{formatDate(entry.date)}</Text>
         <Text
@@ -39,7 +46,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, currency }) => {
           <Text style={styles.notes}>{entry.notes}</Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

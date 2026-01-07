@@ -18,7 +18,7 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import AccountCard from '../components/AccountCard';
 import Button from '../components/Button';
 import { TradingAccount, RootStackParamList, RootTabParamList } from '../types';
-import { getAccounts, createAccount, deleteAccount } from '../services/firestore';
+import { getAllAccounts, createAccount, deleteAccount } from '../api';
 
 type AccountsScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootTabParamList, 'Accounts'>,
@@ -31,15 +31,17 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [newAccount, setNewAccount] = useState({
     name: '',
+    broker: '',
     initialBalance: '',
     currency: 'USD',
   });
   const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadAccounts = useCallback(async () => {
     try {
       setLoading(true);
-      const fetchedAccounts = await getAccounts();
+      const fetchedAccounts = await getAllAccounts();
       setAccounts(fetchedAccounts);
     } catch (error) {
       console.error('Error loading accounts:', error);
@@ -53,8 +55,21 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
     loadAccounts();
   }, [loadAccounts]);
 
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message);
+  };
+
   const handleCreateAccount = async () => {
-    if (!newAccount.name || !newAccount.initialBalance) {
+    if (!newAccount.name || !newAccount.broker || !newAccount.initialBalance) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -69,12 +84,14 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
       setSaving(true);
       await createAccount({
         name: newAccount.name,
+        broker: newAccount.broker,
         initialBalance: balance,
         currency: newAccount.currency,
       });
       setModalVisible(false);
-      setNewAccount({ name: '', initialBalance: '', currency: 'USD' });
+      setNewAccount({ name: '', broker: '', initialBalance: '', currency: 'USD' });
       await loadAccounts();
+      showSuccessMessage('Account created successfully!');
     } catch (error) {
       console.error('Error creating account:', error);
       Alert.alert('Error', 'Failed to create account');
@@ -96,6 +113,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
             try {
               await deleteAccount(account.id);
               await loadAccounts();
+              showSuccessMessage('Account deleted successfully!');
             } catch (error) {
               console.error('Error deleting account:', error);
               Alert.alert('Error', 'Failed to delete account');
@@ -120,6 +138,13 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {successMessage && (
+        <View style={styles.successBanner}>
+          <MaterialIcons name="check-circle" size={20} color="#FFFFFF" />
+          <Text style={styles.successText}>{successMessage}</Text>
+        </View>
+      )}
+      
       <View style={styles.header}>
         <Text style={styles.title}>Trading Accounts</Text>
         <TouchableOpacity
@@ -179,6 +204,15 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
 
             <TextInput
               style={styles.input}
+              placeholder="Broker"
+              value={newAccount.broker}
+              onChangeText={(text) =>
+                setNewAccount({ ...newAccount, broker: text })
+              }
+            />
+
+            <TextInput
+              style={styles.input}
               placeholder="Initial Balance"
               value={newAccount.initialBalance}
               onChangeText={(text) =>
@@ -233,6 +267,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F2F2F7',
+  },
+  successBanner: {
+    backgroundColor: '#34C759',
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  successText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,

@@ -75,6 +75,7 @@ export const getAllAccounts = async (): Promise<TradingAccount[]> => {
     return {
       id: doc.id,
       name: data.name,
+      broker: data.broker || '',
       initialBalance: data.initialBalance,
       currentBalance: data.currentBalance,
       currency: data.currency,
@@ -99,6 +100,7 @@ export const getAccountById = async (
     return {
       id: accountDoc.id,
       name: data.name,
+      broker: data.broker || '',
       initialBalance: data.initialBalance,
       currentBalance: data.currentBalance,
       currency: data.currency,
