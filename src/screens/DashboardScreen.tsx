@@ -47,6 +47,14 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const handleNewProfitLossChange = useCallback((text: string) => {
+    setNewEntry(prev => ({ ...prev, profitLoss: sanitizeNumericInput(text) }));
+  }, []);
+
+  const handleEditProfitLossChange = useCallback((text: string) => {
+    setEditEntry(prev => ({ ...prev, profitLoss: sanitizeNumericInput(text) }));
+  }, []);
+
   const loadEntries = useCallback(async () => {
     try {
       setLoading(true);
@@ -331,9 +339,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               style={styles.input}
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={newEntry.profitLoss}
-              onChangeText={(text) => {
-                setNewEntry({ ...newEntry, profitLoss: sanitizeNumericInput(text) });
-              }}
+              onChangeText={handleNewProfitLossChange}
               keyboardType="default"
             />
 
@@ -388,9 +394,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               style={styles.input}
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={editEntry.profitLoss}
-              onChangeText={(text) => {
-                setEditEntry({ ...editEntry, profitLoss: sanitizeNumericInput(text) });
-              }}
+              onChangeText={handleEditProfitLossChange}
               keyboardType="default"
             />
 
