@@ -16,10 +16,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import EntryCard from '../components/EntryCard';
 import Button from '../components/Button';
 import BalanceChart from '../components/BalanceChart';
+import PnLChart from '../components/PnLChart';
+import Statistics from '../components/Statistics';
 import { DailyEntry, RootStackParamList } from '../types';
 import { getEntriesByAccount, createEntry, updateEntry, deleteEntry } from '../api';
 import { updateAccount } from '../api';
-import { formatCurrency } from '../utils/helpers';
+import { formatCurrency, sanitizeNumericInput } from '../utils/helpers';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 type DashboardScreenProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -29,6 +32,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 }) => {
   const { account } = route.params;
   const [entries, setEntries] = useState<DailyEntry[]>([]);
+  const [currentBalance, setCurrentBalance] = useState(account.initialBalance);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -44,18 +48,32 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const handleNewProfitLossChange = useCallback((text: string) => {
+    setNewEntry(prev => ({ ...prev, profitLoss: sanitizeNumericInput(text) }));
+  }, []);
+
+  const handleEditProfitLossChange = useCallback((text: string) => {
+    setEditEntry(prev => ({ ...prev, profitLoss: sanitizeNumericInput(text) }));
+  }, []);
+
   const loadEntries = useCallback(async () => {
     try {
       setLoading(true);
       const fetchedEntries = await getEntriesByAccount(account.id);
       setEntries(fetchedEntries);
+      // Update current balance from the most recent entry
+      if (fetchedEntries.length > 0) {
+        setCurrentBalance(fetchedEntries[0].balance);
+      } else {
+        setCurrentBalance(account.initialBalance);
+      }
     } catch (error) {
       console.error('Error loading entries:', error);
       Alert.alert('Error', 'Failed to load entries');
     } finally {
       setLoading(false);
     }
-  }, [account.id]);
+  }, [account.id, account.initialBalance]);
 
   useEffect(() => {
     loadEntries();
@@ -89,9 +107,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
     try {
       setSaving(true);
       
-      const currentBalance = entries.length > 0 
-        ? entries[0].balance 
-        : account.initialBalance;
       const newBalance = currentBalance + profitLoss;
 
       await createEntry({
@@ -222,10 +237,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Current Balance</Text>
           <Text style={styles.balance}>
-            {formatCurrency(
-              entries.length > 0 ? entries[0].balance : account.initialBalance,
-              account.currency
-            )}
+            {formatCurrency(currentBalance, account.currency)}
           </Text>
           
           <View style={styles.plContainer}>
@@ -238,7 +250,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         </View>
 
         {entries.length > 0 && (
-          <BalanceChart entries={entries} currency={account.currency} />
+          <>
+            <PnLChart entries={entries} currency={account.currency} darkMode={true} />
+            <Statistics entries={entries} currency={account.currency} darkMode={true} />
+            <BalanceChart entries={entries} currency={account.currency} darkMode={true} />
+          </>
         )}
 
         <View style={styles.sectionHeader}>
@@ -324,10 +340,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               style={styles.input}
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={newEntry.profitLoss}
-              onChangeText={(text) =>
-                setNewEntry({ ...newEntry, profitLoss: text })
-              }
-              keyboardType="numeric"
+              onChangeText={handleNewProfitLossChange}
+              keyboardType="default"
             />
 
             <TextInput
@@ -381,10 +395,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
               style={styles.input}
               placeholder="Profit/Loss (e.g., 100 or -50)"
               value={editEntry.profitLoss}
-              onChangeText={(text) =>
-                setEditEntry({ ...editEntry, profitLoss: text })
-              }
-              keyboardType="numeric"
+              onChangeText={handleEditProfitLossChange}
+              keyboardType="default"
             />
 
             <TextInput
@@ -415,7 +427,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.background,
   },
   successBanner: {
     backgroundColor: '#34C759',
@@ -434,7 +446,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.background,
   },
   listContent: {
     padding: 16,
@@ -448,29 +460,29 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
     marginBottom: 16,
   },
   balanceCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   balanceLabel: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginBottom: 8,
   },
   balance: {
     fontSize: 36,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
     marginBottom: 16,
   },
   plContainer: {
@@ -479,21 +491,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F2F2F7',
+    borderTopColor: DARK_THEME_COLORS.border,
   },
   plLabel: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
   },
   plValue: {
     fontSize: 20,
     fontWeight: '700',
   },
   profit: {
-    color: '#34C759',
+    color: DARK_THEME_COLORS.profit,
   },
   loss: {
-    color: '#FF3B30',
+    color: DARK_THEME_COLORS.loss,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -504,10 +516,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   addEntryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: DARK_THEME_COLORS.primary,
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -521,22 +533,22 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     textAlign: 'center',
     marginTop: 8,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: DARK_THEME_COLORS.overlay,
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -551,19 +563,22 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   modalDate: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: DARK_THEME_COLORS.textSecondary,
     marginBottom: 24,
   },
   input: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.backgroundTertiary,
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
     marginBottom: 16,
+    color: DARK_THEME_COLORS.text,
+    borderWidth: 1,
+    borderColor: DARK_THEME_COLORS.border,
   },
   notesInput: {
     height: 100,

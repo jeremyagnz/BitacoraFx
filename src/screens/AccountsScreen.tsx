@@ -15,10 +15,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useFocusEffect } from '@react-navigation/native';
 import AccountCard from '../components/AccountCard';
 import Button from '../components/Button';
 import { TradingAccount, RootStackParamList, RootTabParamList } from '../types';
 import { getAllAccounts, createAccount, deleteAccount } from '../api';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 type AccountsScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootTabParamList, 'Accounts'>,
@@ -54,6 +56,13 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
   useEffect(() => {
     loadAccounts();
   }, [loadAccounts]);
+
+  // Reload accounts when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadAccounts();
+    }, [loadAccounts])
+  );
 
   useEffect(() => {
     if (successMessage) {
@@ -266,7 +275,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.background,
   },
   successBanner: {
     backgroundColor: '#34C759',
@@ -285,7 +294,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -297,7 +306,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   addButton: {
     padding: 8,
@@ -325,11 +334,11 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: DARK_THEME_COLORS.overlay,
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -344,19 +353,22 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
   },
   input: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.backgroundTertiary,
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
     marginBottom: 16,
+    color: DARK_THEME_COLORS.text,
+    borderWidth: 1,
+    borderColor: DARK_THEME_COLORS.border,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.text,
     marginBottom: 8,
   },
   currencyContainer: {
@@ -370,16 +382,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     borderRadius: 8,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: DARK_THEME_COLORS.backgroundTertiary,
     alignItems: 'center',
   },
   currencyButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: DARK_THEME_COLORS.primary,
   },
   currencyButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: DARK_THEME_COLORS.textSecondary,
   },
   currencyButtonTextActive: {
     color: '#FFFFFF',

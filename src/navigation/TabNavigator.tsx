@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AccountsScreen from '../screens/AccountsScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import { RootTabParamList } from '../types';
+import { DARK_THEME_COLORS } from '../theme/darkTheme';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -12,12 +13,12 @@ const TabNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: DARK_THEME_COLORS.primary,
+        tabBarInactiveTintColor: DARK_THEME_COLORS.textSecondary,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: DARK_THEME_COLORS.backgroundSecondary,
           borderTopWidth: 1,
-          borderTopColor: '#E5E5EA',
+          borderTopColor: DARK_THEME_COLORS.border,
           paddingBottom: 4,
           paddingTop: 4,
           height: 60,
